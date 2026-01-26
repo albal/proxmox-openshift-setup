@@ -11,12 +11,13 @@ resource "proxmox_vm_qemu" "service-node" {
   boot        = "order=scsi0;net0" # "c" by default, which renders the coreos35 clone non-bootable. "cdn" is HD, DVD and Network
   agent       = 1
   tags        = "${local.main.target},service"
-  pool        = "${local.main.target}-cluster"
-  onboot      = true
+  pool        = "${local.main.target}-cluster-dev"
+  start_at_node_boot = true
   vm_state    = "running" #local.service.boot # start once created
-
-
-  cores    = local.service.cores
+  
+  cpu {
+    cores = local.service.cores
+  }
   memory   = local.service.ram
   scsihw   = "virtio-scsi-pci"
   bootdisk = "scsi0"
@@ -26,16 +27,16 @@ resource "proxmox_vm_qemu" "service-node" {
     scsi {
       scsi0 {
         disk {
-          storage = "vm-data"
+          storage = "FastSAS"
           size    = "120G"
           discard = true
         }
       }
     }
     ide {
-      ide0 {
+      ide2 {
         cloudinit {
-          storage = "vm-data"
+          storage = "FastSAS"
         }
       }
     }
@@ -49,7 +50,7 @@ resource "proxmox_vm_qemu" "service-node" {
   }
 
   # cloud-init config 
-  cicustom   = "vendor=local:snippets/centos-qemu-agent.yml" # This installs the Qemu Guest Agent. Install the file in /var/lib/vz/snippets on proxmox host
+  # cicustom   = "vendor=local:snippets/centos-qemu-agent.yml" # This installs the Qemu Guest Agent. Install the file in /var/lib/vz/snippets on proxmox host
   ciupgrade  = true
   nameserver = local.network.resolver
   ipconfig0  = "ip=dhcp"
@@ -78,12 +79,14 @@ resource "proxmox_vm_qemu" "pxe-nodes" {
   boot        = "order=scsi0;net0" # "c" by default, which renders the coreos35 clone non-bootable. "cdn" is HD, DVD and Network
   agent       = 0
   tags        = local.main.target
-  pool        = "${local.main.target}-cluster"
+  pool        = "${local.main.target}-cluster-dev"
 
-  onboot   = true
+  start_at_node_boot = true
   vm_state = each.value.boot #each.value.boot # start once created
 
-  cores    = each.value.cores
+  cpu {
+    cores = each.value.cores
+  }
   memory   = each.value.ram
   scsihw   = "virtio-scsi-pci"
   bootdisk = "scsi0"
@@ -93,7 +96,7 @@ resource "proxmox_vm_qemu" "pxe-nodes" {
     slot    = "scsi0"
     size    = "200G"
     type    = "disk"
-    storage = "VM-DATA"
+    storage = "FastSAS"
     discard = true
     #iothread = 1
   }

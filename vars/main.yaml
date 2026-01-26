@@ -1,14 +1,14 @@
 ---
 # Cluster selection
 target: okd # either ocp or okd
-version: 4.18
+version: 4.12.0
 disconnected: false # true if using a disconnected environment, which requires setting up a mirror registry
 
 # Promox details
 vmbase: 400 # I like to have my nodes grouped in Proxmox, so this is the base VM ID index
 env: dev
 pxe_boot_os: pxe-client
-service_os: centos10-cloudinit
+service_os: centos10-cloud-init
 
 # Networking
 cilium_repo: https://github.com/isovalent/olm-for-cilium.git

@@ -1,13 +1,13 @@
 variable "api_url" {
   description = "URL to the API of Proxmox"
   type        = string
-  default     = "https://192.168.1.101:8006/api2/json"
+  default     = "https://192.168.0.8:8006/api2/json"
 }
 
 variable "user" {
   description = "Name of the admin account to use"
   type        = string
-  default     = "terraform@pve"
+  default     = "okd@pve"
 }
 
 variable "passwd" {
