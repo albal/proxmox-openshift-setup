@@ -231,13 +231,13 @@
 
     # Woohoo, the control plane nodes are up and running, and built our cluster. Let's kill the bootstrap node
     # But first, let's remove it from the HA proxy config !
-    - name: Remove bootstrap from HA Proxy
-      replace:
-        path: /etc/haproxy/haproxy.cfg
-        regexp: "^.*server.*bootstrap.*"
-        replace: "# server bootstrap"
-      notify:
-        - Restart HA
+    # - name: Remove bootstrap from HA Proxy
+    #   replace:
+    #     path: /etc/haproxy/haproxy.cfg
+    #     regexp: "^.*server.*bootstrap.*"
+    #     replace: "# server bootstrap"
+    #   notify:
+    #     - Restart HA
 
 # # So let's take care of the bootstrap node. And fire up the worker nodes at the same time ...
 # - name: Deploy OKD worker nodes
