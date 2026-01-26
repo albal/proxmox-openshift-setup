@@ -16,7 +16,7 @@
 
 - name: Restart DHCP
   service:
-    name: dhcpd
+    name: kea
     state: restarted
 
 - name: Stop FW

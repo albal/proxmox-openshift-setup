@@ -1,19 +1,29 @@
 # tasks/dns.yaml
 - name: Fix NetworkManager.cnf
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/NetworkManager/NetworkManager.conf
     insertafter: "[main]"
     line: "dns=none"
   notify:
     - Restart DNS
 
+- name: Force resolv.conf to use localhost
+  copy:
+    content: |
+      search {{ domain }}
+      nameserver 127.0.0.1
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: 0644
+
 # Build DNS configuration
 - name: Create config files
-  template:
+  ansible.builtin.template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     owner: root
-    mode: 0644
+    mode: "0644"
   with_items:
     - { src: templates/dns-forward.j2, dest: /etc/named/zones/db.forward }
     - { src: templates/dns-reverse.j2, dest: /etc/named/zones/db.reverse }
@@ -24,3 +34,4 @@
     - { src: templates/install-config.yaml.j2, dest: install_dir/install-config.yaml }
   notify:
     - Restart DNS
+

@@ -7,10 +7,12 @@ bridge: vmbr2
 vlan: 0
 masters_schedulable: false
 home_subnet: 192.168.0.0/24
-lab_cidr: 10.0.70.0/24
+lab_subnet_cidr: 10.0.70.0/24
+dhcp_pool_range: 10.0.70.7-10.0.70.100
 network_type: Cilium #or use OCK/OCP default, OVNKubernetes
 lab_subnet: 10.0.70.0
 lab_dhcp_start: 10.0.70.7
 lab_dhcp_stop: 10.0.70.100
 lab_broadcast: 10.0.70.255
 lab_gw: 10.0.70.254
+lab_netmask: 255.255.255.0

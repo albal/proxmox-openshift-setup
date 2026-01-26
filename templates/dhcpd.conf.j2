@@ -1,0 +1,45 @@
+# DHCP Configuration for OKD Cluster
+
+# Note: Assuming 'domain' is defined in vars/network.yaml
+option domain-name "{{ domain }}";
+option domain-name-servers {{ service.ip }}; # Service node acts as DNS
+
+default-lease-time 86400;
+max-lease-time 86400;
+
+authoritative;
+
+# Note: Using 'lab_subnet', 'lab_netmask', and 'lab_gw'
+subnet {{ lab_subnet }} netmask {{ lab_netmask }} {
+    option routers {{ lab_gw }};
+    option subnet-mask {{ lab_netmask }};
+
+    # PXE Boot Options
+    next-server {{ service.ip }};
+    filename "pxelinux.0";
+
+    # Bootstrap Node
+    host bootstrap {
+        hardware ethernet {{ bootstrap.macaddr }};
+        fixed-address {{ bootstrap.ip }};
+        option host-name "bootstrap";
+    }
+
+    # Control Plane Nodes
+    {% for node in masters %}
+    host {{ node.name }} {
+        hardware ethernet {{ node.macaddr }};
+        fixed-address {{ node.ip }};
+        option host-name "{{ node.name }}";
+    }
+    {% endfor %}
+
+    # Worker Nodes
+    {% for node in workers %}
+    host {{ node.name }} {
+        hardware ethernet {{ node.macaddr }};
+        fixed-address {{ node.ip }};
+        option host-name "{{ node.name }}";
+    }
+    {% endfor %}
+}

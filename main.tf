@@ -2,19 +2,19 @@
 # Creating cloud-init devices.
 ##############################
 resource "proxmox_vm_qemu" "service-node" {
-  depends_on  = [proxmox_pool.cluster]
-  name        = local.service.name
-  vmid        = local.service.vmid
-  target_node = var.target_host
-  clone       = local.service.os
-  full_clone  = true
-  boot        = "order=scsi0;net0" # "c" by default, which renders the coreos35 clone non-bootable. "cdn" is HD, DVD and Network
-  agent       = 1
-  tags        = "${local.main.target},service"
-  pool        = "${local.main.target}-cluster-dev"
+  depends_on         = [proxmox_pool.cluster]
+  name               = local.service.name
+  vmid               = local.service.vmid
+  target_node        = var.target_host
+  clone              = local.service.os
+  full_clone         = true
+  boot               = "order=scsi0;net0" # "c" by default, which renders the coreos35 clone non-bootable. "cdn" is HD, DVD and Network
+  agent              = 1
+  tags               = "${local.main.target},service"
+  pool               = "${local.main.target}-cluster-dev"
   start_at_node_boot = true
-  vm_state    = "running" #local.service.boot # start once created
-  
+  vm_state           = "running" #local.service.boot # start once created
+
   cpu {
     cores = local.service.cores
   }
@@ -22,6 +22,11 @@ resource "proxmox_vm_qemu" "service-node" {
   scsihw   = "virtio-scsi-pci"
   bootdisk = "scsi0"
   hotplug  = 0
+
+  serial {
+    id   = 0
+    type = "socket"
+  }
 
   disks {
     scsi {
@@ -53,7 +58,7 @@ resource "proxmox_vm_qemu" "service-node" {
   # cicustom   = "vendor=local:snippets/centos-qemu-agent.yml" # This installs the Qemu Guest Agent. Install the file in /var/lib/vz/snippets on proxmox host
   ciupgrade  = true
   nameserver = local.network.resolver
-  ipconfig0  = "ip=dhcp"
+  ipconfig0  = "ip=${local.service.ip}/24,gw=${local.network.lab_gw}"
   skip_ipv6  = true
   ciuser     = var.ansible_user
   cipassword = var.ansible_pwd
@@ -82,7 +87,7 @@ resource "proxmox_vm_qemu" "pxe-nodes" {
   pool        = "${local.main.target}-cluster-dev"
 
   start_at_node_boot = true
-  vm_state = each.value.boot #each.value.boot # start once created
+  vm_state           = each.value.boot #each.value.boot # start once created
 
   cpu {
     cores = each.value.cores
@@ -108,7 +113,7 @@ resource "proxmox_vm_qemu" "pxe-nodes" {
     macaddr = each.value.macaddr
   }
   lifecycle {
-    ignore_changes = [pool, disk, bootdisk]
+    ignore_changes = [pool, disk, bootdisk, startup_shutdown]
   }
 }
 

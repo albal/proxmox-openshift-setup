@@ -1,7 +1,7 @@
 # Setting the timezone
-- name: set timezone to Europe/Brussels
+- name: set timezone to Europe/London
   timezone:
-    name: Europe/Brussels
+    name: Europe/London
 # Not using SElinux for the time being
 - name: No SELinux, thanks
   selinux:

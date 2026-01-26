@@ -1,0 +1,65 @@
+{
+"Dhcp4": {
+    "interfaces-config": {
+        "interfaces": [ "*" ]
+    },
+    "lease-database": {
+        "type": "memfile",
+        "persist": true,
+        "name": "/var/lib/kea/kea-leases4.csv",
+        "lfc-interval": 3600
+    },
+    "valid-lifetime": 86400,
+    "renew-timer": 43200,
+    "rebind-timer": 75600,
+
+    "option-data": [
+        {
+            "name": "domain-name",
+            "data": "{{ domain }}"
+        },
+        {
+            "name": "domain-name-servers",
+            "data": "{{ service.ip }}"
+        }
+    ],
+
+    "subnet4": [
+        {
+            "id": 1,
+            "subnet": "{{ lab_subnet_cidr }}",
+            "pools": [ { "pool": "{{ dhcp_pool_range }}" } ],
+            "option-data": [
+                {
+                    "name": "routers",
+                    "data": "{{ lab_gw }}"
+                }
+            ],
+            "next-server": "{{ service.ip }}",
+            "boot-file-name": "pxelinux.0",
+
+            "reservations": [
+                {
+                    "hw-address": "{{ bootstrap.macaddr }}",
+                    "ip-address": "{{ bootstrap.ip }}",
+                    "hostname": "bootstrap"
+                }{% if masters or workers %},{% endif %}
+                {% for node in masters %}
+                {
+                    "hw-address": "{{ node.macaddr }}",
+                    "ip-address": "{{ node.ip }}",
+                    "hostname": "{{ node.name }}"
+                }{% if not loop.last or workers %},{% endif %}
+                {% endfor %}
+                {% for node in workers %}
+                {
+                    "hw-address": "{{ node.macaddr }}",
+                    "ip-address": "{{ node.ip }}",
+                    "hostname": "{{ node.name }}"
+                }{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ]
+        }
+    ]
+}
+}

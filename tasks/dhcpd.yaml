@@ -1,0 +1,25 @@
+---
+# - name: Install EPEL
+#   package:
+#     name: epel-release
+#     state: present
+
+- name: Install DHCP server
+  package:
+    name: kea
+    state: present
+
+- name: Configure DHCP server
+  template:
+    src: templates/kea-dhcp4.conf.j2
+    dest: /etc/kea/kea-dhcp4.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart DHCP
+
+- name: Enable and start DHCP server
+  service:
+    name: kea-dhcp4
+    state: started
+    enabled: yes
