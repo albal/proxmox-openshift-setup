@@ -12,7 +12,7 @@ service_os: centos10-cloud-init
 
 # Networking
 cilium_repo: https://github.com/isovalent/olm-for-cilium.git
-cilium_version: 1.15.1
+cilium_version: 1.13.12
 
 # Ansible user account details
 user:
