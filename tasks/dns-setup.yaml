@@ -12,7 +12,7 @@
     content: |
       search {{ domain }}
       nameserver 127.0.0.1
-      nameserver "{{ resolver }}"
+      nameserver {{ resolver }}
     dest: /etc/resolv.conf
     owner: root
     group: root

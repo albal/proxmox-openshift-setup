@@ -147,26 +147,25 @@
 
 # To gain some time, we boot the bootstrap node before running the bootstrap command. That'll save us a few ... seconds ?
 
-# - name: Deploy bootstrap node
-#   hosts: proxmox
-#   vars_files:
-#     - vars/main.yaml
-#     - vars/nodes.yaml
-#     - vars/network.yaml
-#   become: yes
-#   become_method: sudo
-#   gather_facts: no
-#   tasks:
-#     - name: Start bootstrap
-#       shell: qm start "{{ bootstrap.vmid + vmbase}}"
-
-- name: Pause
+- name: Deploy bootstrap node
   hosts: localhost
+  vars_files:
+    - vars/main.yaml
+    - vars/nodes.yaml
+    - vars/network.yaml
+    - vars/proxmox.yaml
   gather_facts: no
   tasks:
-  - name: Pause Deploy bootstrap node
-    ansible.builtin.pause:
-      prompt: "Deploy bootstrap node and press Enter to continue."
+    - name: Start bootstrap
+      import_tasks: tasks/start_bootstrap.yaml
+
+# - name: Pause
+#   hosts: localhost
+#   gather_facts: no
+#   tasks:
+#   - name: Pause Deploy bootstrap node
+#     ansible.builtin.pause:
+#       prompt: "Deploy bootstrap node and press Enter to continue."
 
 # Bootstrap node is booting up, let's run the command that will create the tiny bootstrap cluster ...
 
@@ -204,13 +203,35 @@
 #       shell: qm start {{ item.vmid + vmbase}}
 #       loop: "{{ masters }}"
 
-- name: Pause
-  hosts: localhost
+# - name: Pause
+#   hosts: localhost
+#   gather_facts: no
+#   tasks:
+#   - name: Pause Deploy control plane nodes
+#     ansible.builtin.pause:
+#       prompt: "Deploy control plane nodes and press Enter to continue."
+
+- name: Wait for control plane nodes to be up
+  hosts: service
   gather_facts: no
   tasks:
-  - name: Pause Deploy control plane nodes
-    ansible.builtin.pause:
-      prompt: "Deploy control plane nodes and press Enter to continue."
+    - name: Check with ping
+      command: "ping -c 1 -W 1 {{ item.ip }}"
+      register: ping_result
+      until: ping_result.rc == 0
+      retries: 360
+      delay: 5
+      loop: "{{ masters }}"
+
+- name: Deploy OKD control plane nodes
+  hosts: localhost
+  vars_files:
+    - vars/nodes.yaml
+    - vars/main.yaml
+    - vars/proxmox.yaml
+  gather_facts: no
+  tasks:
+    - import_tasks: tasks/start_controlplane.yaml
 
 # The control plane nodes are now up and running, we just patiently wait for them to join the cluster
 - name: Finish bootstrapping sequence
@@ -239,29 +260,29 @@
     #   notify:
     #     - Restart HA
 
-# # So let's take care of the bootstrap node. And fire up the worker nodes at the same time ...
-# - name: Deploy OKD worker nodes
-#   hosts: proxmox
-#   vars_files:
-#     - vars/nodes.yaml
-#     - vars/main.yaml
-#   become: yes
-#   become_method: sudo
-#   gather_facts: no
-#   tasks:
-#     - import_tasks: tasks/stop_bootstrap_start_workers.yaml
-
-- name: Pause
+# So let's take care of the bootstrap node. And fire up the worker nodes at the same time ...
+- name: Deploy OKD worker nodes
   hosts: localhost
+  vars_files:
+    - vars/nodes.yaml
+    - vars/main.yaml
+    - vars/proxmox.yaml
   gather_facts: no
   tasks:
-  - name: Pause Stop bootstrap node
-    ansible.builtin.pause:
-      prompt: "Stop bootstrap node and press Enter to continue."
+    - import_tasks: tasks/stop_bootstrap_start_workers.yaml
 
-  - name: Pause Start worker nodes
-    ansible.builtin.pause:
-      prompt: "Start worker nodes and press Enter to continue."
+
+- name: Wait for workers to be up
+  hosts: service
+  gather_facts: no
+  tasks:
+    - name: Check with ping
+      command: "ping -c 1 -W 1 {{ item.ip }}"
+      register: ping_result
+      until: ping_result.rc == 0
+      retries: 360
+      delay: 5
+      loop: "{{ workers }}"
 
 # In this section, we run the final piece of the installation, and we wait for the worker nodes to join the cluster.
 - name: Wait for installation to be finished

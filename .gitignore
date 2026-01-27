@@ -57,6 +57,7 @@ files/htpass*
 install_dir
 manifests
 files/ssl*
+vars/proxmox.yaml
 .openshift*
 
 

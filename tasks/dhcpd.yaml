@@ -1,9 +1,4 @@
 ---
-# - name: Install EPEL
-#   package:
-#     name: epel-release
-#     state: present
-
 - name: Install DHCP server
   package:
     name: kea

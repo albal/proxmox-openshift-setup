@@ -1,0 +1,9 @@
+- name: Start bootstrap node
+  community.general.proxmox_kvm:
+    api_token_id: "{{ proxmox_api_token_id }}"
+    api_token_secret: "{{ proxmox_api_token_secret }}"
+    api_user: "{{ proxmox_api_user }}"
+    api_host: "{{ proxmox_api_host }}"
+    node: "{{ proxmox_node }}"
+    vmid: "{{ bootstrap.vmid + vmbase }}"
+    state: started

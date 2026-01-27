@@ -73,7 +73,7 @@ resource "proxmox_vm_qemu" "service-node" {
 # Creating all PXE booting devices.
 ###################################
 resource "proxmox_vm_qemu" "pxe-nodes" {
-  depends_on = [proxmox_pool.cluster]
+  depends_on = [proxmox_pool.cluster, proxmox_vm_qemu.service-node]
 
   for_each    = local.all_pxe_nodes
   name        = "${local.main.env}-${local.main.target}-${each.key}"
