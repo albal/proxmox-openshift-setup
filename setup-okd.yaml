@@ -159,6 +159,15 @@
     - name: Start bootstrap
       import_tasks: tasks/start_bootstrap.yaml
 
+
+# - name: Wait for bootstrap another 5 minutes
+#   hosts: service
+#   gather_facts: no
+#   tasks:
+#     - name: Wait for 5 minutes
+#       pause:
+#         minutes: 5
+
 # - name: Pause
 #   hosts: localhost
 #   gather_facts: no
@@ -171,6 +180,10 @@
 
 - name: Start bootstrapping sequence
   hosts: service
+  vars_files:
+    - vars/main.yaml
+    - vars/nodes.yaml
+    - vars/network.yaml
   gather_facts: no
   tasks:
     - name: Starting bootstrap process
@@ -178,7 +191,6 @@
       async: 3600
       poll: 0
 
-    # Now we wait for the magiv message ending with "for bootstrapping to complete..." that indicates the bootstrap node is up and running
     - name: Wait for the message saying the control plane nodes should be started
       command:
         cmd: grep "for bootstrapping to complete..." tmp/bootstrap.log
@@ -211,17 +223,13 @@
 #     ansible.builtin.pause:
 #       prompt: "Deploy control plane nodes and press Enter to continue."
 
-- name: Wait for control plane nodes to be up
-  hosts: service
+- name: Debug message
+  hosts: localhost
   gather_facts: no
   tasks:
-    - name: Check with ping
-      command: "ping -c 1 -W 1 {{ item.ip }}"
-      register: ping_result
-      until: ping_result.rc == 0
-      retries: 360
-      delay: 5
-      loop: "{{ masters }}"
+    - name: Debug message
+      ansible.builtin.debug:
+        msg: "Starting deployment of control plane nodes ..."
 
 - name: Deploy OKD control plane nodes
   hosts: localhost
@@ -232,6 +240,28 @@
   gather_facts: no
   tasks:
     - import_tasks: tasks/start_controlplane.yaml
+
+# - name: Wait for control plane nodes to be up
+#   hosts: service
+#   vars_files:
+#     - vars/nodes.yaml
+#   gather_facts: no
+#   tasks:
+#     - name: Check with ping (masters)
+#       command: "ping -c 1 -W 1 {{ item.ip }}"
+#       register: ping_result
+#       until: ping_result.rc == 0
+#       retries: 360
+#       delay: 5
+#       with_items: "{{ masters }}"
+
+# - name: Wait for control plane another 4 minutes
+#   hosts: service
+#   gather_facts: no
+#   tasks:
+#     - name: Wait for 4 minutes
+#       pause:
+#         minutes: 4
 
 # The control plane nodes are now up and running, we just patiently wait for them to join the cluster
 - name: Finish bootstrapping sequence
@@ -249,6 +279,7 @@
       delay: 5
       register: grp
       until: grp.stdout.find ("safe to remove the bootstrap") != -1
+
 
     # Woohoo, the control plane nodes are up and running, and built our cluster. Let's kill the bootstrap node
     # But first, let's remove it from the HA proxy config !
@@ -271,19 +302,20 @@
   tasks:
     - import_tasks: tasks/stop_bootstrap_start_workers.yaml
 
-
 - name: Wait for workers to be up
   hosts: service
+  vars_files:
+    - vars/nodes.yaml
   gather_facts: no
   tasks:
-    - name: Check with ping
+    - name: Check with ping (workers)
       command: "ping -c 1 -W 1 {{ item.ip }}"
       register: ping_result
       until: ping_result.rc == 0
       retries: 360
       delay: 5
-      loop: "{{ workers }}"
-
+      with_items: "{{ workers }}"
+  
 # In this section, we run the final piece of the installation, and we wait for the worker nodes to join the cluster.
 - name: Wait for installation to be finished
   hosts: service
