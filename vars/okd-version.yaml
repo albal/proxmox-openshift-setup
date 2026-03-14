@@ -47,6 +47,24 @@ versions:
       kernel: https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/39.20231101.3.0/x86_64/fedora-coreos-39.20231101.3.0-live-kernel-x86_64
       rootfs: https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/39.20231101.3.0/x86_64/fedora-coreos-39.20231101.3.0-live-rootfs.x86_64.img
       initramfs: https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/39.20231101.3.0/x86_64/fedora-coreos-39.20231101.3.0-live-initramfs.x86_64.img
+    4.19:
+      client: https://github.com/okd-project/okd-scos/releases/download/4.19.0-okd-scos.5/openshift-client-linux-4.19.0-okd-scos.5.tar.gz
+      install: https://github.com/okd-project/okd-scos/releases/download/4.19.0-okd-scos.5/openshift-install-linux-4.19.0-okd-scos.5.tar.gz
+      kernel: https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.19/419.94.20250115/rhcos-419.94.20250115-live-kernel-x86_64
+      rootfs: https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.19/419.94.20250115/rhcos-419.94.20250115-live-rootfs.x86_64.img
+      initramfs: https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.19/419.94.20250115/rhcos-419.94.20250115-live-initramfs.x86_64.img
+    4.20:
+      client: https://github.com/okd-project/okd-scos/releases/download/4.20.0-okd-scos.17/openshift-client-linux-4.20.0-okd-scos.17.tar.gz
+      install: https://github.com/okd-project/okd-scos/releases/download/4.20.0-okd-scos.17/openshift-install-linux-4.20.0-okd-scos.17.tar.gz
+      kernel: https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.20/420.10.20260120/rhcos-420.10.20260120-live-kernel-x86_64
+      rootfs: https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.20/420.10.20260120/rhcos-420.10.20260120-live-rootfs.x86_64.img
+      initramfs: https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.20/420.10.20260120/rhcos-420.10.20260120-live-initramfs.x86_64.img
+    4.21:
+      client: https://github.com/okd-project/okd-scos/releases/download/4.21.0-okd-scos.0/openshift-client-linux-4.21.0-okd-scos.0.tar.gz
+      install: https://github.com/okd-project/okd-scos/releases/download/4.21.0-okd-scos.0/openshift-install-linux-4.21.0-okd-scos.0.tar.gz
+      kernel: https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.21/421.10.20260201/rhcos-421.10.20260201-live-kernel-x86_64
+      rootfs: https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.21/421.10.20260201/rhcos-421.10.20260201-live-rootfs.x86_64.img
+      initramfs: https://mirror.openshift.com/pub/openshift-v4/dependencies/rhcos/4.21/421.10.20260201/rhcos-421.10.20260201-live-initramfs.x86_64.img
   ocp:
     # OpenShift 4.18 local, in case we're in a disconnected environment - still WIP, better us the remote version below
     4.18:

@@ -1,5 +1,5 @@
 #
-domain: okd.dev.tsew.net
+domain: dev.tsew.net
 clusterid: okd
 resolver: 192.168.0.254
 ntp_server: 192.168.0.123
